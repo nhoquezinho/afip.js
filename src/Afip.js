@@ -132,8 +132,8 @@ function Afip(options = {}) {
     this.CUIT = options["CUIT"];
     this.RES_FOLDER = options["res_folder"];
     this.TA_FOLDER = options["ta_folder"];
-    this.CERT = path.resolve(this.RES_FOLDER, options["cert"]);
-    this.PRIVATEKEY = path.resolve(this.RES_FOLDER, options["key"]);
+    this.CERT = options["cert"];
+    this.PRIVATEKEY = options["key"];
     this.WSAA_WSDL = path.resolve(__dirname, "Afip_res/", "wsaa.wsdl");
 
     if (options["production"]) {
