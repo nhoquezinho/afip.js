@@ -220,31 +220,9 @@ Afip.prototype.CreateServiceTA = async function (service) {
 	</loginTicketRequest>`.trim();
 
     // Get the cert
-    let certPromise;
-    if (isFilePath(this.CERT)) {
-        // Get cert file content
-        certPromise = new Promise((resolve, reject) => {
-            fs.readFile(this.CERT, { encoding: "utf8" }, (err, data) => (err ? reject(err) : resolve(data)));
-        });
-    } else {
-        // The cert was provided as a base64 string
-        certPromise = Buffer.from(this.CERT, "base64").toString("utf8");
-    }
-
+    const cert = this.CERT;
     // Get the key
-    let keyPromise;
-    if (isFilePath(this.CERT)) {
-        // Get key file content
-        keyPromise = new Promise((resolve, reject) => {
-            fs.readFile(this.PRIVATEKEY, { encoding: "utf8" }, (err, data) => (err ? reject(err) : resolve(data)));
-        });
-    } else {
-        // The key was provided as a base64 string
-        keyPromise = Buffer.from(this.PRIVATEKEY, "base64").toString("utf8");
-    }
-
-    // Wait for cert and key content
-    const [cert, key] = await Promise.all([certPromise, keyPromise]);
+    const key = this.PRIVATEKEY;
 
     // Sign Tokent request authorization XML
     const p7 = forge.pkcs7.createSignedData();
@@ -285,29 +263,7 @@ Afip.prototype.CreateServiceTA = async function (service) {
     const [loginCmsResult] = await soapClient.loginCmsAsync(loginArguments);
 
     // Parse loginCmsReturn to JSON
-    const res = await xmlParser.parseStringPromise(loginCmsResult.loginCmsReturn);
-
-    // Declare token authorization file path
-    const taFilePath = path.resolve(this.TA_FOLDER, `TA-${this.options["CUIT"]}-${service}${this.options["production"] ? "-production" : ""}.json`);
-
-    // Save Token authorization data to json file
-    await new Promise((resolve, reject) => {
-        fs.writeFile(taFilePath, JSON.stringify(res.loginticketresponse), (err) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve();
-        });
-    });
-
-    function isFilePath(str) {
-        // Normalize the path to handle different platform separators
-        const normalizedPath = path.normalize(str);
-
-        // Check if the normalized path is an absolute path
-        return path.isAbsolute(normalizedPath);
-    }
+    return (await xmlParser.parseStringPromise(loginCmsResult.loginCmsReturn)).loginticketresponse;
 };
 
 /**
