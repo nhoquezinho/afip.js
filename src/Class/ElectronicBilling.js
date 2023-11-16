@@ -60,6 +60,7 @@ module.exports = class ElectronicBilling extends AfipWebService {
      **/
     async createVoucher(data, returnResponse = false, tokenAndSign) {
         // Reassign data to avoid modify te original object
+        tokenAndSign = data.token;
         data = Object.assign({}, data);
 
         const req = {

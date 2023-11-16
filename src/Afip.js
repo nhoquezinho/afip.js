@@ -224,6 +224,8 @@ Afip.prototype.CreateServiceTA = async function (service) {
     // Get the key
     const key = this.PRIVATEKEY;
 
+    console.log({cert, key});
+
     // Sign Tokent request authorization XML
     const p7 = forge.pkcs7.createSignedData();
     p7.content = forge.util.createBuffer(tra, "utf8");
